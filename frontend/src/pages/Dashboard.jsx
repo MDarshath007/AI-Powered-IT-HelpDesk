@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Ticket,
@@ -13,9 +13,11 @@ import {
   Laptop,
   HelpCircle,
   FileText,
+  Loader2,
 } from 'lucide-react';
 import TicketStatusBadge from '../components/TicketStatusBadge';
 import TicketPriorityBadge from '../components/TicketPriorityBadge';
+import { ticketService, formatTicketDate } from '../services/ticketService';
 
 // Initial realistic mock data for Phase 1 preview
 const initialTickets = [
@@ -81,13 +83,36 @@ const quickTroubleshooting = [
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [tickets] = useState(initialTickets);
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Compute metrics
+  useEffect(() => {
+    async function loadDashboardTickets() {
+      try {
+        setLoading(true);
+        const data = await ticketService.getAllTickets();
+        setTickets(data);
+      } catch {
+        // Fallback to empty array if server is unreachable
+        setTickets([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadDashboardTickets();
+  }, []);
+
+  // Compute metrics from real tickets
   const totalCount = tickets.length;
-  const openCount = tickets.filter((t) => t.status === 'Open').length;
-  const inProgressCount = tickets.filter((t) => t.status === 'In Progress').length;
-  const resolvedCount = tickets.filter((t) => t.status === 'Resolved').length;
+  const openCount = tickets.filter(
+    (t) => (t.status || '').toLowerCase() === 'open'
+  ).length;
+  const inProgressCount = tickets.filter(
+    (t) => (t.status || '').toLowerCase() === 'in_progress'
+  ).length;
+  const resolvedCount = tickets.filter(
+    (t) => (t.status || '').toLowerCase() === 'resolved'
+  ).length;
 
   const handleQuickPrompt = (prompt) => {
     navigate('/ai-assistant', { state: { initialPrompt: prompt } });
@@ -279,41 +304,56 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {tickets.map((t) => (
-                <tr
-                  key={t.id}
-                  className="hover:bg-slate-50/60 transition-colors"
-                >
-                  <td className="py-3.5 px-6 font-mono text-slate-500 font-medium">
-                    #{t.id}
-                  </td>
-                  <td className="py-3.5 px-6">
-                    <span className="font-semibold text-slate-800 line-clamp-1">
-                      {t.title}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-6 text-slate-600 font-medium">
-                    {t.category}
-                  </td>
-                  <td className="py-3.5 px-6">
-                    <TicketPriorityBadge priority={t.priority} />
-                  </td>
-                  <td className="py-3.5 px-6">
-                    <TicketStatusBadge status={t.status} />
-                  </td>
-                  <td className="py-3.5 px-6 text-slate-400 whitespace-nowrap">
-                    {t.createdAt}
-                  </td>
-                  <td className="py-3.5 px-6 text-right">
-                    <Link
-                      to={`/tickets/${t.id}`}
-                      className="text-indigo-600 hover:text-indigo-800 font-semibold text-xs"
-                    >
-                      View
-                    </Link>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-slate-400">
+                    <Loader2 className="w-5 h-5 animate-spin mx-auto mb-1 text-indigo-600" />
+                    <span>Loading recent tickets...</span>
                   </td>
                 </tr>
-              ))}
+              ) : tickets.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-slate-400">
+                    No tickets in SQLite yet. Go to Tickets to create one!
+                  </td>
+                </tr>
+              ) : (
+                tickets.slice(0, 5).map((t) => (
+                  <tr
+                    key={t.id}
+                    className="hover:bg-slate-50/60 transition-colors"
+                  >
+                    <td className="py-3.5 px-6 font-mono text-slate-500 font-medium">
+                      #{t.id}
+                    </td>
+                    <td className="py-3.5 px-6">
+                      <span className="font-semibold text-slate-800 line-clamp-1">
+                        {t.title}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-6 text-slate-600 font-medium">
+                      {t.category}
+                    </td>
+                    <td className="py-3.5 px-6">
+                      <TicketPriorityBadge priority={t.priority} />
+                    </td>
+                    <td className="py-3.5 px-6">
+                      <TicketStatusBadge status={t.status} />
+                    </td>
+                    <td className="py-3.5 px-6 text-slate-400 whitespace-nowrap">
+                      {formatTicketDate(t.created_at || t.createdAt)}
+                    </td>
+                    <td className="py-3.5 px-6 text-right">
+                      <Link
+                        to={`/tickets/${t.id}`}
+                        className="text-indigo-600 hover:text-indigo-800 font-semibold text-xs"
+                      >
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
