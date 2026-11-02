@@ -12,5 +12,6 @@ app.listen(PORT, () => {
   console.log(`[Backend] AI Helpdesk API server listening on http://localhost:${PORT}`);
   console.log(`[Backend] Health check endpoint: http://localhost:${PORT}/api/health`);
   console.log(`[Backend] Tickets endpoint: http://localhost:${PORT}/api/tickets`);
+  console.log(`[Backend] AI Assistant endpoint: http://localhost:${PORT}/api/ai/chat`);
 });
 

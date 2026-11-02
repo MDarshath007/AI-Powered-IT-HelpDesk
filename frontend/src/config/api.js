@@ -9,4 +9,7 @@ export const API_ENDPOINTS = {
   HEALTH: `${API_BASE_URL}/health`,
   TICKETS: `${API_BASE_URL}/tickets`,
   TICKET_BY_ID: (id) => `${API_BASE_URL}/tickets/${id}`,
+  AI_CHAT: `${API_BASE_URL}/ai/chat`,
+  AI_STATUS: `${API_BASE_URL}/ai/status`,
 };
+
