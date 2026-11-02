@@ -18,6 +18,8 @@ build/
 *.sqlite
 *.sqlite3
 *.db
+data/
+backend/data/
 backend/src/database/*.db
 backend/src/database/*.sqlite
 

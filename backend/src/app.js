@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import healthRoutes from './routes/healthRoutes.js';
+import ticketRoutes from './routes/ticketRoutes.js';
 import { notFoundHandler, errorHandler } from './middleware/errorHandler.js';
 
 // Initialize Express application
@@ -12,6 +13,7 @@ app.use(express.json());
 
 // API Routes
 app.use('/api/health', healthRoutes);
+app.use('/api/tickets', ticketRoutes);
 
 // Catch-all 404 for undefined routes
 app.use(notFoundHandler);
