@@ -35,10 +35,10 @@ function AppLayout() {
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           {/* Tailwind CSS Verification Banner */}
-          <div className="bg-red-500 text-white p-4 rounded-lg mb-6 font-semibold shadow-sm flex items-center justify-between">
+          {/* <div className="bg-red-500 text-white p-4 rounded-lg mb-6 font-semibold shadow-sm flex items-center justify-between">
             <span>Tailwind CSS is active! (Classes tested: bg-red-500, text-white, p-4)</span>
             <span className="text-xs bg-red-600 px-2.5 py-1 rounded-full uppercase tracking-wider font-bold">Verified</span>
-          </div>
+          </div> */}
 
           <Routes>
             <Route path="/" element={<Dashboard />} />
